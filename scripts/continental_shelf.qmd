@@ -1,0 +1,21 @@
+---
+title: "Continental Shelf Depth"
+format: html
+---
+
+The depth of the edge of the continental shelf (the shelf break) has multiple definitions in the literature, including 133 and 167m ([Hay 2016](https://doi.org/10.1007/978-94-007-6238-1_179)),  200m ([Harris et al. 2014](https://bluehabitats.org/?page_id=1660)), and 300m ([Watling et al. 2013](https://doi.org/10.1016/j.pocean.2012.11.003)). 
+
+Here, I calculate the global average continental shelf break depth, using the edge of the continental shelf as defined by Harris et al. ([2014](https://doi.org/10.1007/978-94-007-6238-1_179)), and extracting depth data from the [GEBCO 2024 sub-ice bathymetry](https://www.gebco.net/).
+
+```{r}
+#| include: false
+
+library(terra)
+```
+
+```{r}
+shelf <- vect("../data/Shelf.shp")
+
+plot(shelf[,1])
+```
+
