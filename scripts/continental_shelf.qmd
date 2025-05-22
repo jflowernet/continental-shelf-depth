@@ -16,6 +16,45 @@ library(terra)
 ```{r}
 shelf <- vect("../data/Shelf.shp")
 
-plot(shelf[,1])
+plet(shelf[,1])
+```
+
+Try getting only the longest lines of each shelf polygon, but this doesn't work comprehensively because some of the shelf breaks touch the coastline creating a single polygon that can't be split into separate lines.
+
+```{r}
+nrow(shelf)
+
+shelf_list <- lapply(1:nrow(shelf), FUN = function(x) shelf[x, 1] |> 
+                       as.lines() |> 
+                       disagg())
+
+#how many elements have only 1 line?
+
+no_features <- sapply(shelf_list, nrow)
+
+table(no_features)
+                       
+for (i in 1:length(shelf_list)) {
+  if(nrow(shelf_list[[i]])>1){
+    shelf_list[[i]]$length <- perim(shelf_list[[i]]) #add column with line lengths
+    
+    row_index_longest <- which(shelf_list[[i]]$length == max(shelf_list[[i]]$length)) #find which row contains the line with the longest length
+    
+    shelf_list[[i]] <- shelf_list[[i]][row_index_longest, 1]
+  } 
+}
+
+shelf_lines <- do.call(rbind, shelf_list)
+```
+
+Try erasing land using rnaturalearth: this doesn't work either because I need a larger buffer than I've applied to erase all land and then I will be erasing some of the shelf breaks!
+
+```{r}
+land <- rnaturalearth::ne_countries(scale = 10, returnclass = "sv") |> 
+  aggregate()
+
+land_buffered <- buffer(land, width = 100)
+
+shelf_no_land <- erase(shelf, land_buffered)
 ```
 
